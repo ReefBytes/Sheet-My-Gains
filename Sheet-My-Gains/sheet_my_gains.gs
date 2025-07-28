@@ -460,18 +460,20 @@ function flattenResult_(
 /**
  * Iterates through all results of a Robinhood API endpoint and builds a 2D array for Google Sheets.
  */
-function getRobinhoodData_(endpoint, hyperlinkedFields) {
+function getRobinhoodData_(endpointName, hyperlinkedFields, options = {}) {
   try {
-    let results = RobinhoodApiClient.pagedGet(
-      ROBINHOOD_CONFIG.API_URIS[endpoint],
-    );
+    // Use the custom endpoint from options if it exists, otherwise use the default.
+    const endpointUrl =
+      options.endpoint || ROBINHOOD_CONFIG.API_URIS[endpointName];
 
-    if (endpoint === "positions") {
+    let results = RobinhoodApiClient.pagedGet(endpointUrl);
+
+    if (endpointName === "positions") {
       results = results.filter((row) => parseFloat(row["quantity"]) > 0);
     }
 
     if (!results || results.length === 0) {
-      return [["No results found for " + endpoint]];
+      return [["No results found for " + endpointName]];
     }
 
     const allFlattenedResults = [];
@@ -483,7 +485,7 @@ function getRobinhoodData_(endpoint, hyperlinkedFields) {
         result,
         flattenedResult,
         hyperlinkedFields.slice(),
-        endpoint,
+        endpointName,
       );
       allFlattenedResults.push(flattenedResult);
       Object.keys(flattenedResult).forEach((key) => allKeys.add(key));
@@ -568,15 +570,45 @@ function ROBINHOOD_GET_OPTIONS_POSITIONS(LastUpdate) {
 }
 
 /**
- * Retrieves a history of stock orders.
+ * Retrieves a history of stock orders, with an optional filter for the last X days.
  *
- * @param {any} LastUpdate Required to enable automatic refreshing. Use the `LastUpdate` named range, e.g., `=ROBINHOOD_GET_ORDERS(LastUpdate)`.
- * @return {Array<Array<string>>} A two-dimensional array of stock order data for Google Sheets.
+ * @param {number} [days=0] Optional. Number of days to look back. If 0 or omitted, all orders are returned.
+ * @param {number} [page_size=1000] Optional. Number of items to return per a page.
+ * @param {any} LastUpdate Required to enable automatic refreshing. Use the `LastUpdate` named range.
+ * @return {Array<Array<string>>} A two-dimensional array of stock order data.
  * @customfunction
  */
-function ROBINHOOD_GET_ORDERS(LastUpdate) {
+function ROBINHOOD_GET_ORDERS(days = 0, page_size = 1000, LastUpdate) {
   validateLastUpdate(LastUpdate);
-  return getRobinhoodData_("orders", ["instrument", "position"]);
+
+  let endpoint = ROBINHOOD_CONFIG.API_URIS.orders + `?`;
+  endpoint += `page_size=${page_size}`;
+
+  // If a 'days' filter is applied, modify the endpoint to include a date filter.
+  if (days > 0) {
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - days);
+    // Format the date to an ISO string that the API understands.
+    const isoDateString = cutoffDate.toISOString();
+    // Add the 'updated_at[gte]' parameter to the URL.
+    endpoint += `&updated_at[gte]=${isoDateString}`;
+  }
+
+  const ordersData = getRobinhoodData_("orders", [], {
+    endpoint: endpoint,
+  });
+
+  if (
+    ordersData[0][0].startsWith("Error:") ||
+    ordersData[0].includes("No results found")
+  ) {
+    if (days > 0) {
+      return [["No orders found in the last " + days + " days."]];
+    }
+    return ordersData;
+  }
+
+  return ordersData;
 }
 
 /**

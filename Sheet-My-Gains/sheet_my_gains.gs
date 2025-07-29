@@ -791,7 +791,7 @@ function ROBINHOOD_GET_URL(url, LastUpdate, includeHeader) {
   }
 
   // If includeHeader is explicitly set to FALSE, don't show the header. Otherwise, show it.
-  const showHeader = includeHeader === false ? false : true;
+  const showHeader = includeHeader !== false;
 
   // The existing client adds the base URL, so we remove it from the input if present.
   const endpoint = url.replace(ROBINHOOD_CONFIG.API_BASE_URL, "");

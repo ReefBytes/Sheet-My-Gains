@@ -853,7 +853,6 @@ function ROBINHOOD_GET_LOGIN_STATUS(LastUpdate) {
     const options = {
       method: "get",
       muteHttpExceptions: true,
-      // CORRECTED: All header properties are now in a single object.
       headers: {
         Authorization: "Bearer " + token,
         "X-Robinhood-API-Version": "1.0.0",

@@ -530,7 +530,7 @@ function ROBINHOOD_GET_ACH_TRANSFERS(LastUpdate) {
  */
 function ROBINHOOD_GET_DIVIDENDS(LastUpdate) {
   validateLastUpdate(LastUpdate);
-  return getRobinhoodData_("dividends", ["instrument"]);
+  return getRobinhoodData_("dividends", []);
 }
 
 /**
@@ -632,7 +632,7 @@ function ROBINHOOD_GET_PORTFOLIOS(LastUpdate) {
  */
 function ROBINHOOD_GET_POSITIONS(LastUpdate) {
   validateLastUpdate(LastUpdate);
-  return getRobinhoodData_("positions", ["instrument"]);
+  return getRobinhoodData_("positions", []);
 }
 
 /**
@@ -644,7 +644,7 @@ function ROBINHOOD_GET_POSITIONS(LastUpdate) {
  */
 function ROBINHOOD_GET_WATCHLIST(LastUpdate) {
   validateLastUpdate(LastUpdate);
-  return getRobinhoodData_("watchlist", ["instrument"]);
+  return getRobinhoodData_("watchlist", []);
 }
 
 /**
@@ -762,6 +762,49 @@ function ROBINHOOD_GET_ACCOUNTS(LastUpdate) {
     });
 
     return data;
+  } catch (e) {
+    return [["Error: " + e.message]];
+  }
+}
+
+/**
+ * Retrieves data from a specific Robinhood API URL.
+ *
+ * @param {string} url The full Robinhood API URL to fetch data from.
+ * @param {boolean} [includeHeader=true] Optional. Set to FALSE to exclude the header row.
+ * @param {any} LastUpdate Required to enable automatic refreshing. Use the `LastUpdate` named range.
+ * @return {Array<Array<string>>} A two-dimensional array of the fetched data.
+ * @customfunction
+ */
+function ROBINHOOD_GET_URL(url, LastUpdate, includeHeader) {
+  validateLastUpdate(LastUpdate);
+  if (!url) {
+    return [["Error: Please provide a URL."]];
+  }
+
+  // If includeHeader is explicitly set to FALSE, don't show the header. Otherwise, show it.
+  const showHeader = includeHeader === false ? false : true;
+
+  // The existing client adds the base URL, so we remove it from the input if present.
+  const endpoint = url.replace(ROBINHOOD_CONFIG.API_BASE_URL, "");
+
+  try {
+    const result = RobinhoodApiClient.get(endpoint);
+    if (result) {
+      const header = Object.keys(result);
+      const values = Object.values(result).map((value) =>
+        typeof value === "object" && value !== null
+          ? JSON.stringify(value)
+          : value,
+      );
+
+      if (showHeader) {
+        return [header, values];
+      } else {
+        return [values];
+      }
+    }
+    return [["Error: Could not retrieve data from the URL: " + url]];
   } catch (e) {
     return [["Error: " + e.message]];
   }

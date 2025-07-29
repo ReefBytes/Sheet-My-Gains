@@ -298,43 +298,40 @@ function validateSherrifId_(deviceToken, workflowId) {
   }
 }
 
-function runInteractiveLoginFlow_() {
-  const ui = SpreadsheetApp.getUi();
-  Logger.log("Starting interactive login flow...");
+/**
+ * Displays the custom HTML login dialog to the user.
+ * This function will be called from the "Robinhood > Login / Re-login" menu.
+ */
+function showLoginDialog_() {
+  const html = HtmlService.createHtmlOutputFromFile("LoginDialog")
+    .setWidth(300)
+    .setHeight(320);
+  SpreadsheetApp.getUi().showModalDialog(html, " ");
+}
+
+/**
+ * Processes the credentials submitted from the HTML dialog.
+ * This function is called by `google.script.run` from the HTML form.
+ * @param {object} credentials An object with 'username' and 'password' properties.
+ * @return {string} A status message to display back in the dialog.
+ */
+function processLogin(credentials) {
+  Logger.log("Starting login process from custom dialog...");
+
+  if (!credentials || !credentials.username || !credentials.password) {
+    return "Username and password are required.";
+  }
 
   try {
-    const username = ui
-      .prompt(
-        "Robinhood Login",
-        "Enter your Robinhood email:",
-        ui.ButtonSet.OK_CANCEL,
-      )
-      .getResponseText();
-    if (!username) {
-      Logger.log("Login cancelled by user.");
-      return;
-    }
-    const password = ui
-      .prompt(
-        "Robinhood Login",
-        "Enter your Robinhood password:",
-        ui.ButtonSet.OK_CANCEL,
-      )
-      .getResponseText();
-    if (!password) {
-      Logger.log("Login cancelled by user.");
-      return;
-    }
-
     const deviceToken = generateDeviceToken_();
 
     const loginPayload = {
       client_id: ROBINHOOD_CONFIG.CLIENT_ID,
       expires_in: 86400,
       grant_type: "password",
-      password: password,
+      password: credentials.password,
       scope: "internal",
-      username: username,
+      username: credentials.username,
       device_token: deviceToken,
       try_passkeys: false,
       token_request_path: "/login/",
@@ -370,7 +367,6 @@ function runInteractiveLoginFlow_() {
       Logger.log("Login successful without MFA.");
       finalTokenResponse = loginResponse;
     } else {
-      // Sanitize the error message to avoid logging sensitive details
       const errorDetail =
         loginResponse && loginResponse.detail
           ? loginResponse.detail
@@ -383,13 +379,9 @@ function runInteractiveLoginFlow_() {
         "robinhood_access_token",
         finalTokenResponse.access_token,
       );
-      ui.alert(
-        "Success!",
-        "Successfully authenticated with Robinhood.",
-        ui.ButtonSet.OK,
-      );
+      Logger.log("Successfully authenticated with Robinhood.");
+      return "Success! You are now logged in. This dialog will close shortly.";
     } else {
-      // Sanitize the error message here as well
       const tokenErrorDetail =
         finalTokenResponse && finalTokenResponse.detail
           ? finalTokenResponse.detail
@@ -400,7 +392,8 @@ function runInteractiveLoginFlow_() {
     }
   } catch (e) {
     Logger.log(`An error occurred in the login flow: ${e.toString()}`);
-    ui.alert("Login Error", e.toString(), ui.ButtonSet.OK);
+    // Return the error message to be displayed in the dialog
+    return e.toString();
   }
 }
 
@@ -831,7 +824,7 @@ function runLoginProcess() {
     "robinhood_access_token",
   );
   Logger.log("Cleared old token to start new login.");
-  runInteractiveLoginFlow_();
+  showLoginDialog_();
 }
 
 function refreshLastUpdate_() {

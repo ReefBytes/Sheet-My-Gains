@@ -824,7 +824,65 @@ function runLoginProcess() {
     "robinhood_access_token",
   );
   Logger.log("Cleared old token to start new login.");
-  showLoginDialog_();
+  showLoginDialog_(); // This is the only change needed here
+}
+
+/**
+ * Checks the current Robinhood login status by verifying the stored access token.
+ *
+ * @param {any} LastUpdate Required to enable automatic refreshing. Use the `LastUpdate` named range.
+ * @return {string} The current login status, either "Logged In" or "Logged Out".
+ * @customfunction
+ */
+function ROBINHOOD_GET_LOGIN_STATUS(LastUpdate) {
+  Logger.log("Running ROBINHOOD_GET_LOGIN_STATUS...");
+  validateLastUpdate(LastUpdate);
+
+  const token = PropertiesService.getUserProperties().getProperty(
+    "robinhood_access_token",
+  );
+
+  if (!token) {
+    Logger.log("No access token found. User is logged out.");
+    return "Logged Out";
+  }
+  Logger.log("Access token found. Verifying with API...");
+
+  try {
+    const endpoint = ROBINHOOD_CONFIG.API_URIS.accounts;
+    const options = {
+      method: "get",
+      muteHttpExceptions: true,
+      // CORRECTED: All header properties are now in a single object.
+      headers: {
+        Authorization: "Bearer " + token,
+        "X-Robinhood-API-Version": "1.0.0",
+      },
+      payload: "",
+      validateHttpsCertificates: true,
+    };
+
+    Logger.log("Fetching account details to validate token...");
+    const response = UrlFetchApp.fetch(
+      ROBINHOOD_CONFIG.API_BASE_URL + endpoint,
+      options,
+    );
+    const responseCode = response.getResponseCode();
+    Logger.log(`Token validation API response code: ${responseCode}`);
+
+    if (responseCode >= 200 && responseCode < 300) {
+      Logger.log("Token is valid. User is logged in.");
+      return "Logged In";
+    } else {
+      Logger.log(
+        `Token is invalid or expired (Response: ${responseCode}). User is logged out.`,
+      );
+      return "Logged Out";
+    }
+  } catch (e) {
+    Logger.log(`An error occurred during token validation: ${e.toString()}`);
+    return "Logged Out";
+  }
 }
 
 function refreshLastUpdate_() {

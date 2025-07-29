@@ -23,8 +23,8 @@ To use Sheet-My-Gains, you'll need to add the provided Google Apps Script code t
 3.  **Set Up a New Script**: If the editor contains any default code (like `function myFunction() {}`), delete it to start with a blank script.
 4.  **Add the Main Script**: Locate the `sheet_my_gains.gs` file in the `Sheet-My-Gains-initialization/Sheet-My-Gains/` directory. Copy its entire content and paste it into the Apps Script editor, replacing any existing code.
 5.  **Save the Script**: Click the save icon (floppy disk) or press `Ctrl + S` (Windows) / `Cmd + S` (Mac). When prompted, name the project "Sheet-My-Gains" or any name of your choice.
-6.  **Add the HTML File**: In the Apps Script editor, create a new file by clicking the `+` icon and selecting `HTML`. Name the file `LoginDialog.gs`. Then, copy the content of the `LoginDialog.gs` file from the `Sheet-My-Gains-initialization/Sheet-My-Gains/` directory and paste it into this new file.
-7.  **Save the HTML File**: Save the `LoginDialog.gs` file by clicking the save icon or pressing `Ctrl + S` (Windows) / `Cmd + S` (Mac).
+6.  **Add the HTML File**: In the Apps Script editor, create a new file by clicking the `+` icon and selecting `HTML`. Name the file `LoginDialog.html`. Then, copy the content of the `LoginDialog.html` file from the `Sheet-My-Gains-initialization/Sheet-My-Gains/` directory and paste it into this new file.
+7.  **Save the HTML File**: Save the `LoginDialog.html` file by clicking the save icon or pressing `Ctrl + S` (Windows) / `Cmd + S` (Mac).
 8.  **Refresh Your Spreadsheet**: Return to your Google Sheet and refresh the page. You should now see a new "Robinhood" menu item in the spreadsheet toolbar.
 
 ## Available Functions:

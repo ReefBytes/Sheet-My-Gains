@@ -57,7 +57,7 @@ const RobinhoodApiClient = (function () {
   }
 
   function makeRequest_(url, options, retryCount = 0) {
-    const MAX_RETRIES = 3;
+    const MAX_RETRIES = 5;
     const INITIAL_WAIT_TIME = 5000;
 
     Logger.log(`Making request to: ${url} (Attempt ${retryCount + 1})`);
@@ -68,14 +68,24 @@ const RobinhoodApiClient = (function () {
     if (responseCode === 429 && retryCount < MAX_RETRIES) {
       const waitTime =
         INITIAL_WAIT_TIME * Math.pow(2, retryCount) + Math.random() * 1000;
-      Logger.log(
-        `Rate limited (429). Waiting ${waitTime / 1000} seconds before retrying...`,
-      );
+      const statusMessage = `Rate limited. Retrying in ${Math.round(waitTime / 1000)}s... (Attempt ${retryCount + 1})`;
+      properties.setProperty("robinhood_retry_status", statusMessage);
+      Logger.log(statusMessage);
+
       Utilities.sleep(waitTime);
       return makeRequest_(url, options, retryCount + 1);
     }
 
-    Logger.log(`Response [${responseCode}]: ${responseText}`);
+    // This is the key change: Check if the request is for the token URL
+    if (url === ROBINHOOD_CONFIG.TOKEN_URL) {
+      // If it is, log a generic message instead of the full response
+      Logger.log(
+        `Response [${responseCode}] from authentication endpoint received.`,
+      );
+    } else {
+      // Otherwise, log the full response as before for debugging
+      Logger.log(`Response [${responseCode}]: ${responseText}`);
+    }
 
     if (responseCode >= 200 && responseCode < 400) {
       try {
@@ -102,7 +112,7 @@ const RobinhoodApiClient = (function () {
           return JSON.parse(responseText);
         } catch (e) {
           throw new Error(
-            `API request failed. ${responseCode}: ${responseText}`,
+            `API request failed. ${responseCode}: [Sensitive response not shown]`,
           );
         }
       }
@@ -288,9 +298,6 @@ function validateSherrifId_(deviceToken, workflowId) {
   }
 }
 
-/**
- * Runs the full interactive authentication flow.
- */
 function runInteractiveLoginFlow_() {
   const ui = SpreadsheetApp.getUi();
   Logger.log("Starting interactive login flow...");
@@ -363,9 +370,12 @@ function runInteractiveLoginFlow_() {
       Logger.log("Login successful without MFA.");
       finalTokenResponse = loginResponse;
     } else {
-      throw new Error(
-        `Login failed. Initial response from server: ${JSON.stringify(loginResponse)}`,
-      );
+      // Sanitize the error message to avoid logging sensitive details
+      const errorDetail =
+        loginResponse && loginResponse.detail
+          ? loginResponse.detail
+          : "No additional details provided.";
+      throw new Error(`Login failed. Server response: ${errorDetail}`);
     }
 
     if (finalTokenResponse && finalTokenResponse.access_token) {
@@ -379,8 +389,13 @@ function runInteractiveLoginFlow_() {
         ui.ButtonSet.OK,
       );
     } else {
+      // Sanitize the error message here as well
+      const tokenErrorDetail =
+        finalTokenResponse && finalTokenResponse.detail
+          ? finalTokenResponse.detail
+          : "No additional details provided.";
       throw new Error(
-        `Failed to retrieve final access token. Response: ${JSON.stringify(finalTokenResponse)}`,
+        `Failed to retrieve final access token. Detail: ${tokenErrorDetail}`,
       );
     }
   } catch (e) {

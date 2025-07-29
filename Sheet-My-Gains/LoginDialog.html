@@ -1,0 +1,171 @@
+<!doctype html>
+<html>
+    <head>
+        <base target="_top" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+            rel="stylesheet"
+        />
+
+        <style>
+            :root {
+                --brand-color: #4285f4;
+                --text-color: #333;
+                --border-color: #ccc;
+                --background-color: #ffffff;
+            }
+
+            html,
+            body {
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                font-family: "Inter", sans-serif;
+                background-color: var(--background-color);
+                color: var(--text-color);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .container {
+                width: 100%;
+                max-width: 280px;
+                padding: 20px;
+                box-sizing: border-box; /* Ensures padding doesn't affect width */
+            }
+
+            h3 {
+                text-align: center;
+                font-weight: 600;
+                margin-top: 0;
+                margin-bottom: 8px;
+            }
+
+            p {
+                text-align: center;
+                font-size: 14px;
+                color: #666;
+                margin-top: 0;
+                margin-bottom: 24px;
+            }
+
+            .form-group {
+                margin-bottom: 16px;
+            }
+
+            label {
+                display: block;
+                margin-bottom: 6px;
+                font-size: 14px;
+                font-weight: 500;
+            }
+
+            input[type="text"],
+            input[type="password"] {
+                width: 100%;
+                padding: 10px;
+                border: 1px solid var(--border-color);
+                border-radius: 6px;
+                box-sizing: border-box;
+                transition:
+                    border-color 0.2s,
+                    box-shadow 0.2s;
+            }
+
+            input[type="text"]:focus,
+            input[type="password"]:focus {
+                outline: none;
+                border-color: var(--brand-color);
+                box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+            }
+
+            button {
+                width: 100%;
+                background-color: var(--brand-color);
+                color: white;
+                padding: 12px;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 16px;
+                font-weight: 500;
+                transition: background-color 0.2s;
+            }
+
+            button:hover:not(:disabled) {
+                background-color: #357ae8;
+            }
+
+            button:disabled {
+                background-color: #b0b0b0;
+                cursor: not-allowed;
+            }
+
+            #status {
+                margin-top: 16px;
+                font-size: 14px;
+                text-align: center;
+                min-height: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h3>Robinhood Login</h3>
+            <p>Enter your credentials to authenticate.</p>
+
+            <div class="form-group">
+                <label for="username">Email</label>
+                <input type="text" id="username" name="username" />
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" />
+            </div>
+
+            <button id="loginButton" onclick="handleLogin()">Login</button>
+
+            <div id="status"></div>
+        </div>
+
+        <script>
+            function handleLogin() {
+                var loginButton = document.getElementById("loginButton");
+                var statusDiv = document.getElementById("status");
+                var usernameInput = document.getElementById("username");
+                var passwordInput = document.getElementById("password");
+
+                // Disable button and show status
+                loginButton.disabled = true;
+                statusDiv.textContent = "Logging in...";
+
+                var credentials = {
+                    username: usernameInput.value,
+                    password: passwordInput.value,
+                };
+
+                google.script.run
+                    .withSuccessHandler(function (message) {
+                        statusDiv.textContent = message;
+                        // Close the dialog on success after a short delay
+                        if (message.includes("Success")) {
+                            setTimeout(function () {
+                                google.script.host.close();
+                            }, 2000);
+                        } else {
+                            loginButton.disabled = false; // Re-enable button on failure
+                        }
+                    })
+                    .withFailureHandler(function (error) {
+                        statusDiv.textContent = "Error: " + error.message;
+                        loginButton.disabled = false; // Re-enable button on failure
+                    })
+                    .processLogin(credentials);
+            }
+        </script>
+    </body>
+</html>

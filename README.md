@@ -46,10 +46,6 @@ These functions are designed to be used directly in your Google Sheet cells. Mos
     * **Purpose**: Checks the current authentication status and returns "Logged In" or "Logged Out".
     * **Usage**: `=ROBINHOOD_GET_LOGIN_STATUS(LastUpdate)`
 
-* **`ROBINHOOD_GET_RETRY_STATUS(LastUpdate)`**
-    * **Purpose**: Displays the real-time status of API rate-limit retries (e.g., when a `429` error occurs). The cell will be blank during normal operation.
-    * **Usage**: `=ROBINHOOD_GET_RETRY_STATUS(LastUpdate)`
-
 * **`ROBINHOOD_GET_URL(url, LastUpdate, includeHeader)`**
     * **Purpose**: Retrieves data from a specific Robinhood API URL. Useful for advanced queries not covered by other functions.
     * **Parameters**:

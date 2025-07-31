@@ -8,7 +8,7 @@ Tired of the limited analytics in the Robinhood app? Sheet-My-Gains gives you th
 
 ## Core Features:
 
-* **Sync Positions**: Pull all your current stock, ETF, and crypto positions.
+* **Sync Positions**: Pull all your current stock and ETF positions.
 * **Fetch Order History**: Keep a complete log of your buy and sell orders.
 * **Track Dividends**: Automatically log all dividend payouts.
 * **Scheduled Triggers**: Set up the script to run automatically on a daily or hourly basis.
@@ -58,50 +58,69 @@ These functions are designed to be used directly in your Google Sheet cells. Mos
     * **Purpose**: Retrieves detailed information for all your brokerage accounts within Robinhood.
     * **Usage**: `=ROBINHOOD_GET_ACCOUNTS(LastUpdate)`
 
-* **`ROBINHOOD_GET_ACH_TRANSFERS(LastUpdate)`**
+* **`ROBINHOOD_GET_ACH_TRANSFERS(accountNumber, LastUpdate)`**
     * **Purpose**: Retrieves a history of all ACH transfers.
-    * **Usage**: `=ROBINHOOD_GET_ACH_TRANSFERS(LastUpdate)`
+    * **Parameters**:
+        * `accountNumber` (Optional): Account number to filter results. If omitted, returns data for all accounts.
+        * `LastUpdate` (Required): Use the `LastUpdate` named range.
+    * **Usage**: `=ROBINHOOD_GET_ACH_TRANSFERS(LastUpdate)` or `=ROBINHOOD_GET_ACH_TRANSFERS("5DP12345", LastUpdate)`
 
-* **`ROBINHOOD_GET_DIVIDENDS(LastUpdate)`**
+* **`ROBINHOOD_GET_DIVIDENDS(accountNumber, LastUpdate)`**
     * **Purpose**: Fetches the complete dividend history.
-    * **Usage**: `=ROBINHOOD_GET_DIVIDENDS(LastUpdate)`
+    * **Parameters**:
+        * `accountNumber` (Optional): Account number to filter results. If omitted, returns data for all accounts.
+        * `LastUpdate` (Required): Use the `LastUpdate` named range.
+    * **Usage**: `=ROBINHOOD_GET_DIVIDENDS(LastUpdate)` or `=ROBINHOOD_GET_DIVIDENDS("5DP12345", LastUpdate)`
 
-* **`ROBINHOOD_GET_DOCUMENTS(LastUpdate)`**
-    * **Purpose**: Retrieves a list of available documents, such as statements and tax forms.
-    * **Usage**: `=ROBINHOOD_GET_DOCUMENTS(LastUpdate)`
+
 
 * **`ROBINHOOD_GET_HISTORICALS(ticker, interval, span, LastUpdate)`**
     * **Purpose**: Retrieves historical price data for a specified stock ticker.
     * **Parameters**:
         * `ticker` (Required): The stock ticker symbol (e.g., "TSLA").
-        * `interval` (Optional): The time interval for data points ('day', 'week', 'month').
-        * `span` (Optional): The total time span for the historical data ('week', 'month', '3month', 'year', '5year').
+        * `interval` (Optional): Time interval - "5minute", "day" (default), "week"
+        * `span` (Optional): Time span - "day", "week", "month", "3month", "year" (default), "5year"
         * `LastUpdate` (Required): Use the `LastUpdate` named range.
     * **Usage**: `=ROBINHOOD_GET_HISTORICALS("GOOG", "day", "year", LastUpdate)`
 
-* **`ROBINHOOD_GET_ORDERS(days, page_size, LastUpdate)`**
+* **`ROBINHOOD_GET_ORDERS(days, page_size, accountNumber, LastUpdate)`**
     * **Purpose**: Fetches your stock order history.
     * **Parameters**:
         * `days` (Optional): Number of days to look back. If `0` or omitted, all orders are returned.
         * `page_size` (Optional): Number of items to return per page.
+        * `accountNumber` (Optional): Account number to filter results. If omitted, returns data for all accounts.
         * `LastUpdate` (Required): Use the `LastUpdate` named range.
-    * **Usage**: `=ROBINHOOD_GET_ORDERS(30, , LastUpdate)`
+    * **Usage**: `=ROBINHOOD_GET_ORDERS(30, , LastUpdate)` or `=ROBINHOOD_GET_ORDERS(30, 1000, "5DP12345", LastUpdate)`
 
-* **`ROBINHOOD_GET_OPTIONS_ORDERS(LastUpdate)`**
+* **`ROBINHOOD_GET_OPTIONS_ORDERS(days, page_size, accountNumber, LastUpdate)`**
     * **Purpose**: Provides a detailed history of your options orders.
-    * **Usage**: `=ROBINHOOD_GET_OPTIONS_ORDERS(LastUpdate)`
+    * **Parameters**:
+        * `days` (Optional): Number of days to look back. If `0` or omitted, all orders are returned.
+        * `page_size` (Optional): Number of items to return per page (max: 1000). Default: 50.
+        * `accountNumber` (Optional): Account number to filter results. If omitted, returns data for all accounts.
+        * `LastUpdate` (Required): Use the `LastUpdate` named range.
+    * **Usage**: `=ROBINHOOD_GET_OPTIONS_ORDERS(30, 100, LastUpdate)` or `=ROBINHOOD_GET_OPTIONS_ORDERS(30, 100, "5DP12345", LastUpdate)`
 
-* **`ROBINHOOD_GET_OPTIONS_POSITIONS(LastUpdate)`**
+* **`ROBINHOOD_GET_OPTIONS_POSITIONS(accountNumber, LastUpdate)`**
     * **Purpose**: Retrieves all current options positions held in your Robinhood account.
-    * **Usage**: `=ROBINHOOD_GET_OPTIONS_POSITIONS(LastUpdate)`
+    * **Parameters**:
+        * `accountNumber` (Optional): Account number to filter results. If omitted, returns data for all accounts.
+        * `LastUpdate` (Required): Use the `LastUpdate` named range.
+    * **Usage**: `=ROBINHOOD_GET_OPTIONS_POSITIONS(LastUpdate)` or `=ROBINHOOD_GET_OPTIONS_POSITIONS("5DP12345", LastUpdate)`
 
-* **`ROBINHOOD_GET_PORTFOLIOS(LastUpdate)`**
+* **`ROBINHOOD_GET_PORTFOLIOS(accountNumber, LastUpdate)`**
     * **Purpose**: Retrieves your portfolio data, including account value and historical performance.
-    * **Usage**: `=ROBINHOOD_GET_PORTFOLIOS(LastUpdate)`
+    * **Parameters**:
+        * `accountNumber` (Optional): Account number to filter results. If omitted, returns data for all accounts.
+        * `LastUpdate` (Required): Use the `LastUpdate` named range.
+    * **Usage**: `=ROBINHOOD_GET_PORTFOLIOS(LastUpdate)` or `=ROBINHOOD_GET_PORTFOLIOS("5DP12345", LastUpdate)`
 
-* **`ROBINHOOD_GET_POSITIONS(LastUpdate)`**
-    * **Purpose**: Fetches all current stock positions (equities, ETFs, crypto).
-    * **Usage**: `=ROBINHOOD_GET_POSITIONS(LastUpdate)`
+* **`ROBINHOOD_GET_POSITIONS(accountNumber, LastUpdate)`**
+    * **Purpose**: Fetches all current stock positions (equities, ETFs, REITs).
+    * **Parameters**:
+        * `accountNumber` (Optional): Account number to filter results. If omitted, returns data for all accounts.
+        * `LastUpdate` (Required): Use the `LastUpdate` named range.
+    * **Usage**: `=ROBINHOOD_GET_POSITIONS(LastUpdate)` or `=ROBINHOOD_GET_POSITIONS("5DP12345", LastUpdate)`
 
 * **`ROBINHOOD_GET_QUOTE(ticker, includeHeader, LastUpdate)`**
     * **Purpose**: Retrieves the latest quote data for a given stock ticker symbol.
@@ -111,6 +130,62 @@ These functions are designed to be used directly in your Google Sheet cells. Mos
         * `LastUpdate` (Required): Use the `LastUpdate` named range.
     * **Usage**: `=ROBINHOOD_GET_QUOTE("MSFT", TRUE, LastUpdate)`
 
-* **`ROBINHOOD_GET_WATCHLIST(LastUpdate)`**
-    * **Purpose**: Retrieves the instruments (stocks, ETFs, crypto) from your default Robinhood watchlist.
-    * **Usage**: `=ROBINHOOD_GET_WATCHLIST(LastUpdate)`
+* **`ROBINHOOD_GET_WATCHLISTS(LastUpdate)`**
+    * **Purpose**: Lists all your available watchlists with basic information.
+    * **Usage**: `=ROBINHOOD_GET_WATCHLISTS(LastUpdate)`
+
+* **`ROBINHOOD_GET_WATCHLIST(watchlistNameOrId, LastUpdate)`**
+    * **Purpose**: Retrieves detailed instrument information from a specific watchlist with current market data.
+    * **Parameters**:
+        * `watchlistNameOrId` (Required): The name or ID of the watchlist (e.g., "General", "Buy Review").
+        * `LastUpdate` (Required): Use the `LastUpdate` named range.
+    * **Returns**: Symbol, name, current price, daily change ($), daily change (%), market cap, state, tradability, date added
+    * **Usage**: `=ROBINHOOD_GET_WATCHLIST("General", LastUpdate)`
+
+* **`ROBINHOOD_GET_ALL_WATCHLISTS(LastUpdate)`**
+    * **Purpose**: Retrieves instruments from ALL of your watchlists combined into one table with current market data.
+    * **Returns**: Watchlist name, symbol, name, current price, daily change ($), daily change (%), market cap, state, tradability, date added
+    * **Usage**: `=ROBINHOOD_GET_ALL_WATCHLISTS(LastUpdate)`
+
+## New Enhanced Functions:
+
+### Portfolio Performance & Analytics:
+
+* **`ROBINHOOD_GET_PORTFOLIO_HISTORICALS(span, interval, accountNumber, LastUpdate)`**
+    * **Purpose**: Retrieves portfolio historical performance data for tracking value over time.
+    * **Parameters**:
+        * `span` (Optional): Time span - "day", "week", "month", "3month", "year" (default), "5year"
+        * `interval` (Optional): Time interval - "5minute", "day" (default), "week"
+        * `accountNumber` (Optional): Account number to filter results. If omitted, returns data for all accounts combined.
+        * `LastUpdate` (Required): Use the `LastUpdate` named range.
+    * **Usage**: `=ROBINHOOD_GET_PORTFOLIO_HISTORICALS("year", "day", LastUpdate)` or `=ROBINHOOD_GET_PORTFOLIO_HISTORICALS("year", "day", "5DP12345", LastUpdate)`
+
+
+
+
+### Enhanced Quote Functions:
+
+* **`ROBINHOOD_GET_QUOTES_BATCH(tickers, LastUpdate)`**
+    * **Purpose**: Retrieves quotes for multiple stock tickers in a single efficient call.
+    * **Parameters**:
+        * `tickers` (Required): Comma-separated list of ticker symbols (e.g., "AAPL,MSFT,GOOGL").
+        * `LastUpdate` (Required): Use the `LastUpdate` named range.
+    * **Usage**: `=ROBINHOOD_GET_QUOTES_BATCH("AAPL,MSFT,GOOGL", LastUpdate)`
+
+### Tax & Reporting:
+
+Tax reporting functions have been removed due to calculation accuracy issues. Please use official tax documents from Robinhood for tax reporting purposes.
+
+### Utility Functions:
+
+* **`ROBINHOOD_VALIDATE_TICKER(ticker)`**
+    * **Purpose**: Validates a stock ticker symbol format.
+    * **Usage**: `=ROBINHOOD_VALIDATE_TICKER("AAPL")`
+
+* **`ROBINHOOD_FORMAT_CURRENCY(amount)`**
+    * **Purpose**: Formats a number as currency.
+    * **Usage**: `=ROBINHOOD_FORMAT_CURRENCY(1234.56)`
+
+* **`ROBINHOOD_LAST_MARKET_DAY()`**
+    * **Purpose**: Gets the last market trading day (excluding weekends).
+    * **Usage**: `=ROBINHOOD_LAST_MARKET_DAY()`

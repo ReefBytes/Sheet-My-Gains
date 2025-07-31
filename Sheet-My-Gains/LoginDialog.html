@@ -109,58 +109,6 @@
                 font-size: 14px;
                 text-align: center;
                 min-height: 20px;
-                padding: 8px;
-                border-radius: 4px;
-                transition: all 0.2s;
-            }
-
-            #status.error {
-                background-color: #fef2f2;
-                color: #dc2626;
-                border: 1px solid #fecaca;
-            }
-
-            #status.success {
-                background-color: #f0fdf4;
-                color: #16a34a;
-                border: 1px solid #bbf7d0;
-            }
-
-            #status.loading {
-                background-color: #eff6ff;
-                color: #2563eb;
-                border: 1px solid #bfdbfe;
-            }
-
-            .spinner {
-                display: inline-block;
-                width: 16px;
-                height: 16px;
-                border: 2px solid #e5e7eb;
-                border-radius: 50%;
-                border-top-color: var(--brand-color);
-                animation: spin 1s ease-in-out infinite;
-                margin-right: 8px;
-            }
-
-            @keyframes spin {
-                to { transform: rotate(360deg); }
-            }
-
-            .form-group.error input {
-                border-color: #dc2626;
-                box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2);
-            }
-
-            .error-message {
-                color: #dc2626;
-                font-size: 12px;
-                margin-top: 4px;
-                display: none;
-            }
-
-            .form-group.error .error-message {
-                display: block;
             }
         </style>
     </head>
@@ -169,142 +117,55 @@
             <h3>Robinhood Login</h3>
             <p>Enter your credentials to authenticate.</p>
 
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="username">Email</label>
-                    <input 
-                        type="email" 
-                        id="username" 
-                        name="username" 
-                        required 
-                        autocomplete="username"
-                        aria-describedby="username-error"
-                        autofocus
-                    />
-                    <div id="username-error" class="error-message">Please enter a valid email address.</div>
-                </div>
+            <div class="form-group">
+                <label for="username">Email</label>
+                <input type="text" id="username" name="username" />
+            </div>
 
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input 
-                        type="password" 
-                        id="password" 
-                        name="password" 
-                        required 
-                        autocomplete="current-password"
-                        aria-describedby="password-error"
-                    />
-                    <div id="password-error" class="error-message">Password is required.</div>
-                </div>
-            </form>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" />
+            </div>
 
-            <button type="submit" id="loginButton" form="loginForm">Login</button>
+            <button id="loginButton" onclick="handleLogin()">Login</button>
 
             <div id="status"></div>
         </div>
 
         <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const loginForm = document.getElementById('loginForm');
-                const loginButton = document.getElementById('loginButton');
-                const statusDiv = document.getElementById('status');
-                const usernameInput = document.getElementById('username');
-                const passwordInput = document.getElementById('password');
+            function handleLogin() {
+                var loginButton = document.getElementById("loginButton");
+                var statusDiv = document.getElementById("status");
+                var usernameInput = document.getElementById("username");
+                var passwordInput = document.getElementById("password");
 
-                // Form validation
-                function validateForm() {
-                    let isValid = true;
-                    
-                    // Clear previous errors
-                    document.querySelectorAll('.form-group').forEach(group => {
-                        group.classList.remove('error');
-                    });
-                    
-                    // Validate email
-                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    if (!usernameInput.value || !emailRegex.test(usernameInput.value)) {
-                        usernameInput.closest('.form-group').classList.add('error');
-                        isValid = false;
-                    }
-                    
-                    // Validate password
-                    if (!passwordInput.value || passwordInput.value.length < 1) {
-                        passwordInput.closest('.form-group').classList.add('error');
-                        isValid = false;
-                    }
-                    
-                    return isValid;
-                }
+                // Disable button and show status
+                loginButton.disabled = true;
+                statusDiv.textContent = "Logging in...";
 
-                function showStatus(message, type) {
-                    statusDiv.className = '';
-                    statusDiv.classList.add(type);
-                    
-                    if (type === 'loading') {
-                        statusDiv.innerHTML = '<span class="spinner"></span>' + message;
-                    } else {
+                var credentials = {
+                    username: usernameInput.value,
+                    password: passwordInput.value,
+                };
+
+                google.script.run
+                    .withSuccessHandler(function (message) {
                         statusDiv.textContent = message;
-                    }
-                }
-
-                function handleLogin(event) {
-                    event.preventDefault();
-                    
-                    if (!validateForm()) {
-                        showStatus('Please correct the errors above.', 'error');
-                        return;
-                    }
-
-                    // Disable button and show loading status
-                    loginButton.disabled = true;
-                    showStatus('Authenticating with Robinhood...', 'loading');
-
-                    const credentials = {
-                        username: usernameInput.value.trim(),
-                        password: passwordInput.value,
-                    };
-
-                    google.script.run
-                        .withSuccessHandler(function (message) {
-                            if (message.includes('Success')) {
-                                showStatus(message, 'success');
-                                // Close the dialog on success after a short delay
-                                setTimeout(function () {
-                                    google.script.host.close();
-                                }, 2000);
-                            } else {
-                                showStatus(message, 'error');
-                                loginButton.disabled = false;
-                            }
-                        })
-                        .withFailureHandler(function (error) {
-                            showStatus('Authentication failed: ' + (error.message || 'Please try again.'), 'error');
-                            loginButton.disabled = false;
-                        })
-                        .processLogin(credentials);
-                }
-
-                // Add event listeners
-                loginForm.addEventListener('submit', handleLogin);
-                
-                // Real-time validation feedback
-                usernameInput.addEventListener('blur', function() {
-                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    const formGroup = this.closest('.form-group');
-                    if (this.value && !emailRegex.test(this.value)) {
-                        formGroup.classList.add('error');
-                    } else {
-                        formGroup.classList.remove('error');
-                    }
-                });
-                
-                passwordInput.addEventListener('input', function() {
-                    const formGroup = this.closest('.form-group');
-                    if (this.value.length > 0) {
-                        formGroup.classList.remove('error');
-                    }
-                });
-            });
+                        // Close the dialog on success after a short delay
+                        if (message.includes("Success")) {
+                            setTimeout(function () {
+                                google.script.host.close();
+                            }, 2000);
+                        } else {
+                            loginButton.disabled = false; // Re-enable button on failure
+                        }
+                    })
+                    .withFailureHandler(function (error) {
+                        statusDiv.textContent = "Error: " + error.message;
+                        loginButton.disabled = false; // Re-enable button on failure
+                    })
+                    .processLogin(credentials);
+            }
         </script>
     </body>
 </html>

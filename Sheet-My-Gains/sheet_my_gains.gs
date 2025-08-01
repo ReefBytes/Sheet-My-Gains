@@ -471,7 +471,7 @@ function formatDataForSheets_(data, options = {}) {
       }
       if (options.formatPercentages && key.includes('percent') && !isNaN(Number(value))) {
         const num = Number(value);
-        flattened[key] = `${(num * 100).toFixed(2)}%`;
+        flattened[key] = num;
       }
     });
     
@@ -548,7 +548,7 @@ function ROBINHOOD_HELP(category = "all") {
     ["ROBINHOOD_FORMAT_CURRENCY", "utility", "Format number as currency", "ROBINHOOD_FORMAT_CURRENCY(1234.56)"],
     ["ROBINHOOD_LAST_MARKET_DAY", "utility", "Get last trading day", "ROBINHOOD_LAST_MARKET_DAY()"],
     ["ROBINHOOD_GET_LOGIN_STATUS", "utility", "Check authentication status", "ROBINHOOD_GET_LOGIN_STATUS(LastUpdate)"],
-    ["ROBINHOOD_GET_URL", "utility", "Get data from any Robinhood API URL", 'ROBINHOOD_GET_URL("https://api.robinhood.com/accounts/", LastUpdate)'],
+    ["ROBINHOOD_GET_URL", "utility", "Get data from any Robinhood API URL", 'ROBINHOOD_GET_URL("https://api.robinhood.com/accounts/", TRUE, LastUpdate)'], // <-- Corrected Line
     ["ROBINHOOD_HELP", "utility", "Show all available functions", 'ROBINHOOD_HELP("core")'],
   ];
 
@@ -876,7 +876,7 @@ function ROBINHOOD_GET_WATCHLIST(watchlistNameOrId, LastUpdate) {
                 item.name || "N/A",
                 item.price || "N/A",
                 item.one_day_dollar_change || "N/A",
-                item.one_day_percent_change ? `${(item.one_day_percent_change * 100).toFixed(2)}%` : "N/A",
+                item.one_day_percent_change || "N/A",
                 item.market_cap || "N/A",
                 item.state || "N/A",
                 item.created_at || "N/A",
@@ -919,7 +919,7 @@ function ROBINHOOD_GET_ALL_WATCHLISTS(LastUpdate) {
                 item.name || "N/A",
                 item.price || "N/A",
                 item.one_day_dollar_change || "N/A",
-                item.one_day_percent_change ? `${(item.one_day_percent_change * 100).toFixed(2)}%` : "N/A",
+                item.one_day_percent_change || "N/A",
                 item.market_cap || "N/A",
                 item.state || "N/A",
             ]);

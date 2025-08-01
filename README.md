@@ -172,4 +172,15 @@ To refresh your data, either use `Robinhood` > `Refresh Data` or set up a time-b
 
 ---
 
+### Known Oddities 
+
+#### `Login failed: Login failed. Server response: Your login couldn't be completed at this time. Please try again shortly.`
+This error message indicates that you have made too many login attempts in a short amount of time, causing a temporary rate limit from Robinhood's servers (known as a 429 error). The error is unpredictable and commonly occurs even when you don't make excessive login attempts. 
+
+The best course of action is to wait for a while before trying to log in again, typically 15-60 minutes.
+
+If this error is recurring and you've already tried waiting (e.g., it happens 4-5 times in a row), please submit an issue ticket so we can investigate further.
+
+---
+
 **Disclaimer**: This tool is not affiliated with Robinhood. Use it at your own risk.

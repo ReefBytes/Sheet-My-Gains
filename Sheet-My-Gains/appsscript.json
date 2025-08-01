@@ -9,6 +9,7 @@
     "access": "MYSELF"
   },
   "urlFetchWhitelist": [
+    "https://api.robinhood.com/",
     "https://api.robinhood.com/*",
     "https://identi.robinhood.com/*"
   ],

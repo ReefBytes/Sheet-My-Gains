@@ -8,11 +8,6 @@
   "executionApi": {
     "access": "MYSELF"
   },
-  "urlFetchWhitelist": [
-    "https://api.robinhood.com/",
-    "https://api.robinhood.com/*",
-    "https://identi.robinhood.com/*"
-  ],
   "oauthScopes": [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/script.external_request",
